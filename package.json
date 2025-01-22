@@ -26,7 +26,8 @@
     "clsx": "^2.1.1",
     "esbuild": "^0.24.2",
     "lucide-react": "^0.473.0",
-    "next": "^15.2.0-canary.19",
+    "markdown-it": "^14.1.0",
+    "next": "^15.2.0-canary.20",
     "next-auth": "^5.0.0-beta.25",
     "next-sanity": "^9.8.29-canary.0",
     "react": "^19.0.0",
@@ -39,6 +40,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/markdown-it": "^14.1.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
