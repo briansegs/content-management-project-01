@@ -1,14 +1,33 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Ping from "./Ping";
 import { client } from "@/sanity/lib/client";
 import { STARTUP_VIEWS_QUERY } from "@/sanity/lib/queries";
 
-const View = async ({ id }: { id: string }) => {
-  const { views: totalViews } = await client
-    .withConfig({ useCdn: false })
-    .fetch(STARTUP_VIEWS_QUERY, { id });
+const View = ({ id }: { id: string }) => {
+  const [totalViews, setTotalViews] = useState<number | null>(null);
 
-  // TODO: Update the number of views as users view pages
+  useEffect(() => {
+    // Fetch the current views count and increment it
+    const fetchAndIncrementViews = async () => {
+      try {
+        // Fetch current views
+        const { views } = await client
+          .withConfig({ useCdn: false })
+          .fetch(STARTUP_VIEWS_QUERY, { id });
+
+        setTotalViews(views);
+
+        // Increment views by calling the API route
+        await fetch(`/api/views/${id}`, { method: "POST" });
+      } catch (error) {
+        console.error("Error fetching or updating views:", error);
+      }
+    };
+
+    fetchAndIncrementViews();
+  }, [id]);
 
   return (
     <div className="view-container">
