@@ -19,7 +19,6 @@ const StartupForm = () => {
   const [pitch, setPitch] = useState("");
   const [resource, setResource] = useState<any>(undefined);
   const [images, setImages] = useState<string[]>([]);
-  console.log("Images: ", images);
 
   const router = useRouter();
   const { toast } = useToast();
@@ -165,7 +164,6 @@ const StartupForm = () => {
               typeof result.info !== "string" &&
               "url" in result.info
             ) {
-              console.log("Upload Result:", result?.info);
               setResource(result.info);
               setImages((prevImages) => [...prevImages, result.info.public_id]);
             } else {

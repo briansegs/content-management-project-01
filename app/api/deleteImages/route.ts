@@ -12,8 +12,6 @@ export async function DELETE(req: NextRequest) {
   const body = await req.json();
   const { public_ids } = body;
 
-  console.log("public_ids: ", public_ids);
-
   if (!public_ids || !Array.isArray(public_ids)) {
     return NextResponse.json(
       { error: "Public IDs are required and must be an array" },
