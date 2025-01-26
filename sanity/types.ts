@@ -302,6 +302,31 @@ export type STARTUPS_BY_AUTHOR_QUERYResult = Array<{
   category: string | null;
   image: string | null;
 }>;
+// Variable: PLAYLIST_BY_SLUG_QUERY
+// Query: *[_type == "playlist" && slug.current == $slug][0]{    _id,    title,    slug,    select[] -> {      _id,      _createdAt,      title,      slug,      author -> {        _id,        name,        slug,        image,        bio      },      views,      description,      category,      image,      pitch    }  }
+export type PLAYLIST_BY_SLUG_QUERYResult = {
+  _id: string;
+  title: string | null;
+  slug: Slug | null;
+  select: Array<{
+    _id: string;
+    _createdAt: string;
+    title: string | null;
+    slug: Slug | null;
+    author: {
+      _id: string;
+      name: string | null;
+      slug: null;
+      image: string | null;
+      bio: string | null;
+    } | null;
+    views: number | null;
+    description: string | null;
+    category: string | null;
+    image: string | null;
+    pitch: string | null;
+  }> | null;
+} | null;
 
 // Query TypeMap
 import "@sanity/client";
@@ -313,5 +338,6 @@ declare module "@sanity/client" {
     "*[_type == \"author\" && id == $id][0]{\n    _id,\n    id,\n    name,\n    username,\n    email,\n    image,\n    bio\n  }": AUTHOR_BY_GITHUB_ID_QUERYResult;
     "*[_type == \"author\" && _id == $id][0]{\n    _id,\n    id,\n    name,\n    username,\n    email,\n    image,\n    bio\n  }": AUTHOR_BY_ID_QUERYResult;
     "*[_type == \"startup\" && author._ref == $id ]| order(_createdAt desc) {\n        _id, \n        title, \n        slug, \n        _createdAt, \n        author -> {\n          _id, name, image, bio\n        }, \n        views,\n        description,\n        category, \n        image\n      }": STARTUPS_BY_AUTHOR_QUERYResult;
+    "*[_type == \"playlist\" && slug.current == $slug][0]{\n    _id,\n    title,\n    slug,\n    select[] -> {\n      _id,\n      _createdAt,\n      title,\n      slug,\n      author -> {\n        _id,\n        name,\n        slug,\n        image,\n        bio\n      },\n      views,\n      description,\n      category,\n      image,\n      pitch\n    }\n  }": PLAYLIST_BY_SLUG_QUERYResult;
   }
 }

@@ -12,10 +12,14 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { createPitch } from "@/lib/actions";
+import { CldUploadButton } from "next-cloudinary";
 
 const StartupForm = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pitch, setPitch] = useState("");
+  const [resource, setResource] = useState<any>(undefined);
+  const [images, setImages] = useState<string[]>([]);
+  console.log("Images: ", images);
 
   const router = useRouter();
   const { toast } = useToast();
@@ -38,6 +42,18 @@ const StartupForm = () => {
         toast({
           title: "Success",
           description: "Your startup pitch as been created successfully",
+        });
+
+        const junkImages = images.filter(
+          (image) => image !== resource.public_id
+        );
+
+        await fetch(`/api/deleteImages`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ public_ids: junkImages }),
         });
 
         router.push(`/startup/${result._id}`);
@@ -133,11 +149,36 @@ const StartupForm = () => {
         <Input
           id="link"
           name="link"
+          value={resource?.url}
           className="startup-form_input"
           required
           placeholder="Startup Image URL"
         />
         {errors.link && <p className="startup-form_error">{errors.link}</p>}
+
+        <CldUploadButton
+          uploadPreset="Test-01"
+          className="mt-2 ml-4 startup-card_btn"
+          onSuccess={(result, widget) => {
+            if (
+              result?.info &&
+              typeof result.info !== "string" &&
+              "url" in result.info
+            ) {
+              console.log("Upload Result:", result?.info);
+              setResource(result.info);
+              setImages((prevImages) => [...prevImages, result.info.public_id]);
+            } else {
+              console.error("Upload failed or result is missing.");
+            }
+            widget.close();
+          }}
+          onError={(error) => {
+            console.error("Upload Error:", error);
+          }}
+        >
+          Upload Image
+        </CldUploadButton>
       </div>
 
       <div data-color-mode="light">
