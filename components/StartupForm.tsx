@@ -2,7 +2,7 @@
 
 import Form from "next/form";
 import { Input } from "./ui/input";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Textarea } from "./ui/textarea";
 import MDEditor from "@uiw/react-md-editor";
 import { Button } from "./ui/button";
@@ -20,8 +20,41 @@ const StartupForm = () => {
   const [resource, setResource] = useState<any>(undefined);
   const [images, setImages] = useState<string[]>([]);
 
+  const skipImageDeletion = useRef(false);
+
   const router = useRouter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const deleteImages = async () => {
+      if (!skipImageDeletion.current && images.length > 0) {
+        try {
+          await fetch(`/api/deleteImages`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ public_ids: images }),
+          });
+        } catch (error) {
+          console.error("Error deleting images:", error);
+        }
+      }
+    };
+
+    const handleBeforeUnload = () => {
+      deleteImages();
+    };
+
+    // Add event listener for page refresh or unload
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Cleanup function to remove event listener
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      deleteImages();
+    };
+  }, [images]);
 
   const handleFormSubmit = async (prevState: any, formData: FormData) => {
     try {
@@ -43,17 +76,9 @@ const StartupForm = () => {
           description: "Your startup pitch as been created successfully",
         });
 
-        const junkImages = images.filter(
-          (image) => image !== resource.public_id
-        );
+        skipImageDeletion.current = true;
 
-        await fetch(`/api/deleteImages`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ public_ids: junkImages }),
-        });
+        setImages([]);
 
         router.push(`/startup/${result._id}`);
       }
